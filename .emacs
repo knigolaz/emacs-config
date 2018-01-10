@@ -27,25 +27,25 @@
 (global-set-key (kbd "C-t") 'table-insert)
 (global-set-key (kbd "<f12>") 'show-my-help)
 
+;; HELP KEYBOARD
 (defun show-my-help ()
   (interactive)
   (message " 
-Сочетание   Функция            Описание
+Сочетание   Функция                  Описание
 клавиш             
------------------------------------------------------------------
-C-v         yank               Вставить текст
-C-x C-a     kill-region        Вырезать текст
-C-c         find-file          открыть файл на диске
-F5          isearch-forward    Поиск строки вперед
-M-1         isearch-backward   Поиск строки назад
-M-2         help-with-tutorial Использовать интерактивный учебник
-C-s         describe-function  Показать справку по функции
-C-f         describe-variable  Показать справку по переменной
-C-o         describe-key       Показать данные, о том, что делает
-C-t         apropos            Поиск в справке по 
------------------------------------------------------------------
-")
-
+------------------------------------------------------------------
+C-v         yank                     Вставить текст
+C-x C-a     kill-region              Вырезать текст
+C-c         kill-ring-save           Скопировать текст
+F5          other-window             переход по окнам
+M-1         move-beginning-of-line   Перескочить на начало строки
+M-2         move-end-of-line         Перескочить на конец строки
+C-s         save-buffer              Сохранить файл
+C-f         isearch-forward          Поиск
+C-o         find-file                Открыть файл
+C-t         table-insert             Вставить таблицу 
+------------------------------------------------------------------
+"))
 ;; No first screen
 (setq inhibit-startup-message t)
 
