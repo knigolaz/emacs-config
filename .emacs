@@ -49,6 +49,8 @@ C-t         apropos            Поиск в справке по
 ;; No first screen
 (setq inhibit-startup-message t)
 
+;; FULLSCREEN
+(toggle-frame-fullscreen)
 
 ;; Font
 (set-default-font "Courier New-11")
