@@ -1,6 +1,9 @@
 ;; ПУТЬ К ПЛАГИНАМ
 (add-to-list 'load-path "~/.emacs.d/lisp")
 
+;; РЕЖИМ
+(text-mode)
+
 ;; ПАКЕТЫ
 (package-initialize)
 
@@ -10,8 +13,7 @@
       ("melpa" . "http://melpa.milkbox.net/packages/")))
 	  
 ;; ОТКЛЮЧИТЬ КУРСОР
-(custom-set-variables
- '(visible-cursor))
+(custom-set-variables '(visible-cursor))
    
 ;;(setq show-paren-style 'expression)
 ;;(show-paren-mode 2)
@@ -25,8 +27,8 @@
 
 ;; ЦВЕТ ФОНА И ТЕКСТА И ВЫДЕЛЕНИЯ
 (set-background-color "gray10")
-(set-foreground-color "white")
-(set-face-background 'region "blue")
+(set-foreground-color "grey60")
+(set-face-background 'region "gray20")
 	
 
 ;; МЕНЮ
@@ -36,25 +38,94 @@
 
 
 ;; КЛАВИАТУРНЫЕ СОЧЕТАНИЯ
-(global-set-key (kbd "C-v") 'yank)
-(global-set-key (kbd "C-x C-a") 'kill-region)
-(global-set-key (kbd "C-c") 'kill-ring-save)
-(global-set-key (kbd "<f5>") 'other-window)
-(global-set-key (kbd "C-a") 'mark-paragraph)
-(global-set-key (kbd "M-1") 'move-beginning-of-line)
-(global-set-key (kbd "M-2") 'move-end-of-line)
-(global-set-key (kbd "C-s") 'save-buffer)
-(global-set-key (kbd "C-f") 'isearch-forward)
-(global-set-key (kbd "C-o") 'find-file)
-(global-set-key (kbd "C-t") 'table-insert)
-(global-set-key (kbd "<f12>") 'show-my-help)
-(global-set-key (kbd "C-n") 'switch-to-buffer)
-(global-set-key (kbd "<f2>") 'bs-show)
-(global-set-key (kbd "C-<f1>") 'describe-variable)
-(global-set-key (kbd "<f8>") 'sr-speedbar-toggle)
-(global-set-key (kbd "<f6>") 'eval-last-sexp)	
+;;(global-set-key (kbd "C-v") 'yank)
+;;(global-set-key (kbd "C-x C-a") 'kill-region)
+;;(global-set-key (kbd "C-c") 'kill-ring-save)
+;;(global-set-key (kbd "<f5>") 'other-window)
+;;(global-set-key (kbd "C-a") 'mark-paragraph)
+;;(global-set-key (kbd "M-1") 'move-beginning-of-line)
+;;(global-set-key (kbd "M-2") 'move-end-of-line)
+;;(global-set-key (kbd "C-s") 'save-buffer)
+;;(global-set-key (kbd "C-f") 'isearch-forward)
+;;(global-set-key (kbd "C-o") 'find-file)
+;;(global-set-key (kbd "C-t") 'table-insert)
+;;(global-set-key (kbd "<f12>") 'show-my-help)
+;;(global-set-key (kbd "C-n") 'switch-to-buffer)
+;;(global-set-key (kbd "<f2>") 'bs-show)
+;;(global-set-key (kbd "C-<f1>") 'describe-variable)
+;;(global-set-key (kbd "<f8>") 'sr-speedbar-toggle)
+;;(global-set-key (kbd "<f6>") 'eval-last-sexp)	
+;;(global-set-key (kbd "C-p") 'toggle-current-window-dedication)
 
+;; ------------------------------------------------------------------
+;; Код обеспечивает получение комбинациям клавиш максимального
+;; приоритета для исключения ситуации с перехватом комбинаций
+;; вновь установленными плагинами.
 
+(defvar cfg-mode-map (make-sparse-keymap))
+
+(define-minor-mode cfg-mode
+  "cfg-mode"
+  :lighter " cfg"
+  cfg-mode-map)
+
+(defadvice load (after cfg-keybindings-priority)
+  (if (not (eq (car (car minor-mode-map-alist)) 'cfg-mode))
+      (let ((mykeys (assq 'cfg-mode minor-mode-map-alist)))
+        (assq-delete-all 'cfg-mode minor-mode-map-alist)
+        (add-to-list 'minor-mode-map-alist mykeys))))
+(ad-activate 'load)
+
+(defun turn-on-cfg-mode ()
+  (interactive)
+  (cfg-mode t))
+
+(defun turn-off-cfg-mode ()
+  (interactive)
+  (cfg-mode -1))
+
+(define-globalized-minor-mode global-cfg-mode cfg-mode turn-on-cfg-mode)
+
+(defun lcl:get-hotkeys ()
+  (list
+    (list "C-c" 'kill-ring-save)                
+    (list "C-v" 'yank)
+    (list "C-x C-a" 'kill-region)
+    (list "<f5>" 'other-window)
+    (list "C-a" 'mark-whole-buffer)
+    (list "M-1" 'move-beginning-of-line)
+    (list "M-2" 'move-end-of-line)
+    (list "C-s" 'save-buffer)
+    (list "C-f" 'isearch-forward)
+    (list "C-o" 'find-file)
+    (list "C-t" 'table-insert)
+    (list "<f12>" 'show-my-help)
+    (list "C-n" 'switch-to-buffer)
+    (list "<f2>" 'bs-show)
+    (list "C-<f1>" 'describe-variable)
+    (list "<f8>" 'sr-speedbar-toggle)
+    (list "<f6>" 'eval-last-sexp)	
+    (list "C-p" 'toggle-current-window-dedication)
+    (list "C-z" 'undo)
+    (list "TAB" 'my-insert-tab-char)
+    (list "M-q" 'kill-this-buffer )
+  ))
+
+(defun cfg:cfg-hotheys (map)
+  (dolist (k (lcl:get-hotkeys))
+    (when k
+      (let ((key (kbd (car k)))
+            (func (car (cdr k))))
+        (define-key map key func)
+        (global-set-key key func)))))
+
+(defun cfg:cfg ()
+  (add-hook 'minibuffer-setup-hook 'turn-off-cfg-mode)
+  (cfg:cfg-hotheys cfg-mode-map)
+  (global-cfg-mode))
+  
+(cfg:cfg)
+;; ------------------------------------------------------------------
 ;;(global-set-key "\C-ca" 'org-agenda) ;; поределение клавиатурных комбинаций для внутренних
 ;;(global-set-key "\C-cb" 'org-iswitchb) ;; подрежимов org-mode
 ;;(global-set-key "\C-cl" 'org-store-link)
@@ -63,20 +134,24 @@
 (defun show-my-help ()
   (interactive)
   (message " 
-Сочетание   Функция                  Описание                         Сочетание   Функция                  Описание
-клавиш                                                                клавиш      
-------------------------------------------------------------------    -----------------------------------------------------------
-C-v         yank                     Вставить текст                   C-t         table-insert             Вставить таблицу 
-C-n         switch-to-buffer         Новый буфер                      C-F1        describe-variable        Справка по функциям	
-C-x C-a     kill-region              Вырезать текст                   F8          sr-speedbar-toggle       Открыть доп. панель	
-C-c         kill-ring-save           Скопировать текст                F6          eval-last-sexp           Выполнить lisp
-F5          other-window             переход по окнам               
-M-1         move-beginning-of-line   Перескочить на начало строки   
+Сочетание   Функция                  Описание                      
+------------------------------------------------------------------   
+C-v         yank                     Вставить текст                  
+C-t         table-insert             Вставить таблицу 
+C-n         switch-to-buffer         Новый буфер                     
+C-F1        describe-variable        Справка по функциям	
+C-x C-a     kill-region              Вырезать текст                  
+F8          sr-speedbar-toggle       Открыть доп. панель	
+C-c         kill-ring-save           Скопировать текст                
+F6          eval-last-sexp           Выполнить lisp
+F5          other-window             переход по окнам                 
+C-o         find-file                Открыть файл  
+M-1         move-beginning-of-line   Перескочить на начало строки     
+C-f         isearch-forward          Поиск    
 M-2         move-end-of-line         Перескочить на конец строки    
-C-s         save-buffer              Сохранить файл                 
-C-f         isearch-forward          Поиск                          
-C-o         find-file                Открыть файл                   
-------------------------------------------------------------------
+C-s         save-buffer              Сохранить файл                  
+M-q         kill-this-buffer         Закрыть текущее окно
+------------------------------------------------------------------   
 "))
 
 
@@ -92,7 +167,6 @@ C-o         find-file                Открыть файл
 ;;(color-theme-select)
 
 
-
 ;; НЕ ПОКАЗЫВАТЬ ЭКРАН ЗАСТАВКИ
 (setq inhibit-startup-message t)
 
@@ -100,18 +174,27 @@ C-o         find-file                Открыть файл
 (toggle-frame-fullscreen)
 
 ;; ШРИФТ
-(set-default-font "Courier New-11")
+(set-default-font "Cousine-12")
 
 
 ;; ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ОКНАМИ ЧЕРЕЗ SHIFT И СТРЕЛКИ
 (windmove-default-keybindings)
 	
+;; ОТКЛЮЧЕНИЕ ЗВУКА
+(setq bell-volume 0)
+(setq sound-alist nil)
+
+;; ФИКСАЦИЯ ОКНА
+(defun toggle-current-window-dedication ()
+  (interactive)
+  (let* ((window (selected-window)) (dedicated (window-dedicated-p window))) (set-window-dedicated-p window (not dedicated)) (message "Window %sdedicated to %s" (if dedicated "no longer " "") (buffer-name)))) 
+
 
 ;; ДОП. ПАНЕЛЬ
 (require 'sr-speedbar)
 
 (make-face 'speedbar-face)
-(set-face-font 'speedbar-face "Verdana-10")
+(set-face-font 'speedbar-face "Cousine-10")
 (setq speedbar-mode-hook '(lambda () (buffer-face-set 'speedbar-face)))
 
 (custom-set-variables
@@ -134,9 +217,9 @@ C-o         find-file                Открыть файл
 
 
 ;; АВТОВЫБОР СОДЕРЖИМОГО
-;;(require 'ido)
-;;(ido-mode t)
-;;(setq ido-enable-flex-matching t)
+(require 'ido)
+(ido-mode t)
+(setq ido-enable-flex-matching t)
 
  
  ;; ПОКАЗЫВАТЬ НОМЕРА СТРОК
@@ -156,8 +239,13 @@ C-o         find-file                Открыть файл
 
 
 ;; ВКЛЮЧИТЬ РЕЖИМ ORG MODE
-(require 'org) ;; Вызвать org-mode
-(add-to-list 'auto-mode-alist '("\\.org$" . Org-mode)) ;; ассоциируем *.org файлы с org-mode
+;;(require 'org) ;; Вызвать org-mode
+;;(add-to-list 'auto-mode-alist '("\\.org$" . Org-mode)) ;; ассоциируем *.org файлы с org-mode
+(require 'org-install)
+(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+;;(define-key global-map "\C-cl" 'org-store-link)
+;;(define-key global-map "\C-ca" 'org-agenda)
+(setq org-log-done t)
 
 ;; ПЕРЕНОС ПО СЛОВАМ
 (setq word-wrap          t) ;; переносить по словам
@@ -166,3 +254,21 @@ C-o         find-file                Открыть файл
 ;; ОТОБРАЖАТЬ БУФЕР SCRATCH
 (require 'bs)
 (setq bs-configurations '(("files" "^\\*scratch\\*" nil nil bs-visits-non-file bs-sort-buffer-interns-are-last)))
+
+;; TAB
+(defun my-insert-tab-char()
+  "Insert a tab char. (ASCII 9, "\t")"
+	(interactive)
+	(insert "\t"))
+
+
+;; ВЫДЕЛЕНИЕ СКОБОК ДЛЯ LISP РЕЖИМА
+(show-paren-mode t)   
+;;(setq show-paren-style 'expression) ; подсвечивает блоки, но раздражает
+;load rainbow colored parenthesis(color settings are difined at the bottom
+;;(add-to-list 'load-path "~/.emacs.d/site-list/rainbow/")
+;;(require 'rainbow-delimiters)
+;;(require 'highlight)
+;;(add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)
+;;(rainbow-delimiters-mode 1)
+;;(global-rainbow-delimiters-mode)
