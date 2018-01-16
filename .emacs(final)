@@ -1,8 +1,40 @@
 ;; ПУТЬ К ПЛАГИНАМ
 (add-to-list 'load-path "~/.emacs.d/lisp")
 
+;; ОТОБРАЖЕНИЕ ВРЕМЕНИ
+(setq display-time-day-and-date t ; display day and date
+      display-time-24hr-format t ; use 24hr format
+      display-time-interval 10 ; redisplay every ten seconds
+      display-time-default-load-average nil) ; don't display the system load average
+(display-time)
+(display-battery-mode 1)
+
 ;; РЕЖИМ
 (text-mode)
+
+;; ПЛАВНОЕ ПРОКРУЧИВАНИЕ
+(setq scroll-step 1)
+
+;; ПОДСВЕТКА ТЕКУЩЕЙ СТРОКИ
+(global-hl-line-mode 1)
+(set-face-background hl-line-face "gray20") ;; color
+
+
+ ;; МОИ МОДУЛИ
+(require 'mylsl-mode) ;; M-x eval-buffer mylsl-mode
+(require 'wpdl-mode)
+
+
+;; ЦВЕТА ПОДСВЕТКИ
+;;(set-face-foreground 'font-lock-string-face "red")     
+;;(set-face-foreground 'font-lock-comment-face "green") 
+;;(set-face-foreground 'font-lock-type-face "yellow")
+;;(set-face-foreground 'font-lock-constant-face "blue")
+;;(set-face-foreground 'font-lock-builtin-face "pink")
+;;(set-face-foreground 'font-lock-function-name-face "lightgreen")
+;;(set-face-foreground 'font-lock-keyword-face "lightblue")
+;;(set-face-foreground 'font-lock-variable-name-face "lightblue")
+
 
 ;; ПАКЕТЫ
 (package-initialize)
@@ -27,8 +59,8 @@
 
 ;; ЦВЕТ ФОНА И ТЕКСТА И ВЫДЕЛЕНИЯ
 (set-background-color "gray10")
-(set-foreground-color "grey60")
-(set-face-background 'region "gray20")
+(set-foreground-color "grey70")
+(set-face-background 'region "gray30")
 	
 
 ;; МЕНЮ
@@ -56,6 +88,11 @@
 ;;(global-set-key (kbd "<f8>") 'sr-speedbar-toggle)
 ;;(global-set-key (kbd "<f6>") 'eval-last-sexp)	
 ;;(global-set-key (kbd "C-p") 'toggle-current-window-dedication)
+
+;; C-x r m — установить закладку
+;; C-x r l — отобразить все закладки
+;; C-x r b — перейти к закладке
+;; M-x bookmark-delete удалить закладку
 
 ;; ------------------------------------------------------------------
 ;; Код обеспечивает получение комбинациям клавиш максимального
@@ -109,6 +146,10 @@
     (list "C-z" 'undo)
     (list "TAB" 'my-insert-tab-char)
     (list "M-q" 'kill-this-buffer )
+    (list "<f9>" 'bookmark-bmenu-list)
+    (list "C-<f9>" 'bookmark-set)
+    (list "M-<f9>" 'bookmark-delete)
+    (list "M-f" 'replace-string)
   ))
 
 (defun cfg:cfg-hotheys (map)
@@ -265,7 +306,8 @@ M-q         kill-this-buffer         Закрыть текущее окно
 ;; ВЫДЕЛЕНИЕ СКОБОК ДЛЯ LISP РЕЖИМА
 (show-paren-mode t)   
 ;;(setq show-paren-style 'expression) ; подсвечивает блоки, но раздражает
-;load rainbow colored parenthesis(color settings are difined at the bottom
+
+;;load rainbow colored parenthesis(color settings are difined at the bottom
 ;;(add-to-list 'load-path "~/.emacs.d/site-list/rainbow/")
 ;;(require 'rainbow-delimiters)
 ;;(require 'highlight)
