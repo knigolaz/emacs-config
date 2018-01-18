@@ -314,3 +314,16 @@ M-q         kill-this-buffer         Закрыть текущее окно
 ;;(add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)
 ;;(rainbow-delimiters-mode 1)
 ;;(global-rainbow-delimiters-mode)
+
+;; TEX
+(add-to-list 'load-path "~/.emacs.d/elpa/auctex-12.1.0")
+(load "auctex.el" nil t t)
+(load "preview.el" nil t t)
+;;(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+;;(setq-default TeX-master nil)
+;;(setq TeX-PDF-mode t)
+;;Для начала убедитесь, что AUCTeX у вас запускается при открытии .tex файлов. Должен появляться пункт меню LaTeX, в котором последние пункты -- это ;;"Read the AUCTeX manual", "Customize AUCTeX" и "Report AUCTeX Bug". У меня в .emacs стоит
+
+;;(setenv "PATH" (concat (getenv "PATH") "d:/"))
+
