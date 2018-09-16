@@ -1,0 +1,1284 @@
+#+TITLE:	Конфигурирование Emacs
+#+STARTUP: content
+
+
+* Пути и ссылки
+** Путь к плагинам
+
+Папки где хранятся все дополнительные модули.
+
+#+begin_src emacs-lisp :tangle yes
+(add-to-list 'load-path "~/.emacs.d/lisp")
+(add-to-list 'load-path "~/.emacs.d/color-theme")
+(add-to-list 'load-path "~/.emacs.d/ljupdate/")
+(add-to-list 'load-path "~/.emacs.d/wanderlust/apel/")
+(add-to-list 'load-path "~/.emacs.d/wanderlust/flim/")
+(add-to-list 'load-path "~/.emacs.d/wanderlust/semi/")
+(add-to-list 'load-path "~/.emacs.d/wanderlust/elmo/")
+(add-to-list 'load-path "~/.emacs.d/wanderlust/wl/")
+(add-to-list 'load-path "~/.emacs.d/auctex")
+(add-to-list 'load-path "~/.emacs.d/ecb/")
+(add-to-list 'load-path "~/.emacs.d/use-package/")
+(add-to-list 'exec-path "~/.emacs.d/hunspell/bin/")
+#+end_src
+
+** Репозитории
+
+Репозитории Emacs если требуется установка новых модулей, но , так как я использую ручное подключение данная настройка не актуальна.
+
+#+begin_src emacs-lisp :tangle no
+(package-initialize)
+(setq package-archives
+	'(("gnu" . "http://elpa.gnu.org/packages/")
+      ("marmalade" . "http://marmalade-repo.org/packages/")
+      ("melpa" . "http://melpa.milkbox.net/packages/")))
+#+end_src
+
+* Интерфейс и внешний вид
+** Цветовая схема
+
+Используется схема Solarized с некоторыми изменениями в файле solarized-defenition.el (~/.emacs.d/color-theme/solarized-defenition.el). 
+
+#+begin_src emacs-lisp :tangle yes
+(require 'color-theme)
+(require 'color-theme-solarized)
+(color-theme-initialize)
+(color-theme-solarized)
+#+end_src
+	
+** Меню
+
+Не отображать меню
+
+#+begin_src emacs-lisp :tangle yes
+(menu-bar-mode -1)
+#+end_src
+	
+Не отображать панель быстрого доступа
+	
+#+begin_src emacs-lisp :tangle yes
+(tool-bar-mode -1)
+#+end_src
+	
+Не отображать полосы прокрутки
+
+#+begin_src emacs-lisp :tangle yes
+(scroll-bar-mode -1)
+#+end_src
+		
+** Плавное прокручивание скролом
+
+Практика показала, что с данными настройками иди без них особой разницы нет.
+
+#+begin_src emacs-lisp :tangle no
+(setq scroll-step               1)
+(setq scroll-margin            10)
+(setq scroll-conservatively 10000)
+#+end_src
+
+** Шрифт
+
+Для корректного отображения таблиц в org-mode нужны моноширные шрифты. 
+
+#+begin_src emacs-lisp :tangle no
+(set-default-font "Courier New-12")
+#+end_src
+
+Один из лучших шрифтов для программирования и тектов. Хорошая замена для Courier New.
+
+#+begin_src emacs-lisp :tangle no
+(set-default-font "DejaVu Sans Mono-11")
+#+end_src
+
+
+#+begin_src emacs-lisp :tangle yes
+(set-default-font "Cousine-11")
+#+end_src
+
+** Перенос строк в текстовом режиме
+
+Автоматический перенос слова на следующую строку по достижению заранее заданной длинны предложения.Инетерсная возможность, но при центровки экрана буфера с полями происходит тот-же эффект.
+
+#+begin_src emacs-lisp :tangle no
+(setq auto-fill-mode t)
+(setq fill-column 80)	
+#+end_src
+
+** Вертикальное деление экрана по умолчанию
+	
+Как выяснилось вертикальное деление даже хуже, чем зашитое по умолчанию горизонтальное. Тем более, что для вертикальнго разделения можно использовать комбинацию <С-x-3>.
+
+#+begin_src emacs-lisp :tangle no
+(setq split-height-threshold nil)
+(setq split-width-threshold 80)
+#+end_src
+
+** На весь экран
+
+Приложение разворачивается по умолчанию на весь экран. Вернуть обратно <F11>.
+
+#+begin_src emacs-lisp :tangle yes
+(toggle-frame-fullscreen)
+#+end_src
+
+** Звук
+
+Не цверен, что эта настройка вообще работает, так как не нашел никакой разницы с ней и без неё.
+
+#+begin_src emacs-lisp :tangle no
+(setq bell-volume 0)
+(setq sound-alist nil)
+#+end_src
+	
+** Работа с буферами
+
+Не заставляйте меня печать "yes" целиком
+
+#+begin_src emacs-lisp :tangle yes
+(fset 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+Вывод буфера *scratch* пустым.
+
+#+begin_src emacs-lisp :tangle yes
+(setq initial-scratch-message nil)      
+#+end_src
+
+** Uniquify
+
+По умолчанию, Емакс отображает (в списке буферов) такие буферы как filename, filename<2>, filename<3> и так далее. А uniquify отображает в имени буфера кусок различающегося пути: filename/folger1, filename/folger2 etc, что несомненно удобнее.
+
+ http://emacswiki.org/emacs/uniquify
+
+#+begin_src emacs-lisp :tangle yes
+(require 'uniquify)
+(setq uniquify-buffer-name-style t)
+(setq uniquify-buffer-name-style 'reverse)
+(setq uniquify-separator "/")
+(setq uniquify-after-kill-buffer-p t)
+(setq uniquify-ignore-buffers-re "^\\*")
+(setq post-forward-angle-brackets 'post-forward-angle-brackets)
+#+end_src
+
+** Редактор
+*** Выделение текущей строки.
+
+Выделение текущей строки улучшает восприятие и помогает быстро определеить текущую позицию курсора.
+
+#+begin_src emacs-lisp :tangle yes
+(global-hl-line-mode 1)
+#+end_src
+
+*** Перенос по словам
+
+Автоматичекский перенос слов по достижению конца буфера. Нужна чтобы длинные строки не выходили за границы области окна.
+
+#+begin_src emacs-lisp :tangle yes
+(setq word-wrap          t)
+(global-visual-line-mode t)
+#+end_src
+
+*** Buffer Selection
+
+Отображает буфер *scratch* в *buffer-selection*.
+
+#+begin_src emacs-lisp :tangle yes
+(require 'bs)
+(setq bs-configurations
+      '(("files" "^\\*scratch\\*" nil nil bs-visits-non-file bs-sort-buffer-interns-are-last)))
+#+end_src
+
+Размер уменьшен для компактности записи, чтобы длинные пути к папкам не переносились на новую строку, это очень портит вид.
+
+#+begin_src emacs-lisp :tangle yes
+(make-face 'bs_1)
+(set-face-font 'bs_1 "Cousine-10")
+(setq bs-mode-hook '(lambda () (buffer-face-set 'bs_1)))
+#+end_src
+
+*** Выделять скобки
+
+Полезная настройка для работы с кодом. Выделяет пару операторных скобок если поставить курсор около одной из них. Помогает найти лишнии или не закрытые скобки.
+
+#+begin_src emacs-lisp :tangle yes
+(show-paren-mode t)
+#+end_src
+
+*** Отступы
+
+Ширина табуляции - 4 пробельных символа
+
+#+begin_src emacs-lisp :tangle yes
+(setq-default tab-width          4)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(setq-default c-basic-offset     4)
+#+end_src
+
+Стандартная ширина отступа - 4 пробельных символа
+
+#+begin_src emacs-lisp :tangle yes
+(setq-default standart-indent    4)
+#+end_src
+
+Сдвигать Lisp-выражения на 4 пробельных символа
+
+#+begin_src emacs-lisp :tangle yes
+(setq-default lisp-body-indent   4)
+#+end_src
+
+*** Интерактивные ссылки в режимах
+
+Создает ссылки в тексте "кликабельными", что дает возможноть перехода по ним прямо из буфера.
+
+#+begin_src emacs-lisp :tangle yes
+(add-hook 'text-mode-hook #'goto-address-mode)
+(add-hook 'my-note-mode-hook #'goto-address-mode)
+(add-hook 'my-knowbase-mode-hook #'goto-address-mode)
+(add-hook 'prog-mode-hook #'goto-address-prog-mode)
+(add-hook 'comint-mode-hook #'goto-address-mode)
+#+end_src
+
+** Статусная строка
+*** Отображение времени
+
+Блок работы с отображением часов в строке состояния (mode-line).
+
+Выводить дату и день недели
+
+#+begin_src emacs-lisp :tangle yes
+(setq display-time-day-and-date t)
+#+end_src
+
+Использовать 24-часовой формат времени.
+
+#+begin_src emacs-lisp :tangle yes
+(setq display-time-24hr-format t)
+#+end_src
+
+Обновлять состояние часов в mode-line каждые 10 секунд.
+
+#+begin_src emacs-lisp :tangle yes
+(setq display-time-interval 10)
+#+end_src
+
+Не использовать среднее системное значение. Отображается после часов в виде десятичной дроби с сотыми долями.
+
+#+begin_src emacs-lisp :tangle yes
+(setq display-time-default-load-average nil)
+#+end_src
+
+Запустить отображение часов.
+
+#+begin_src emacs-lisp :tangle yes
+(display-time)
+#+end_src
+
+*** Заряд батареи
+
+Отображать заряд батареи в процентах на ноутбуке.
+
+#+begin_src emacs-lisp :tangle yes
+(display-battery-mode 1)
+#+end_src
+
+*** Размер файла
+
+Показывать размер файла в процентах в mode-line
+
+#+begin_src emacs-lisp :tangle yes
+(size-indication-mode          t) 
+#+end_src
+
+** Speedbar
+
+Определить ширину панели в 35 пикселей
+
+#+begin_src emacs-lisp :tangle yes
+(setq sr-speedbar-default-width 35)
+(setq sr-speedbar-max-width 35)
+#+end_src
+
+Загружать после определения парметров ширины
+
+#+begin_src emacs-lisp :tangle yes
+(require 'sr-speedbar) 
+#+end_src
+
+Показывать скрытые файлы
+
+#+begin_src emacs-lisp :tangle yes
+(setq sr-speedbar-show-unknown-files t)
+#+end_src
+
+Панель выводить слева
+	
+#+begin_src emacs-lisp :tangle yes
+(setq sr-speedbar-right-side nil)
+#+end_src
+
+Не использовать изображения для объектов
+
+#+begin_src emacs-lisp :tangle yes
+(setq speedbar-use-images nil)
+#+end_src
+
+Использовать другой, более компактный, шрифт.
+	
+#+begin_src emacs-lisp :tangle yes
+(make-face 'speedbar_1)
+(set-face-font 'speedbar_1 "Cousine-10")
+(setq speedbar-mode-hook '(lambda () (buffer-face-set 'speedbar_1)))
+#+end_src
+
+** Календарь
+
+Настройки для рабты с календарем. 
+
+Начинать неделю с первого дня (понедельник)
+#+begin_src emacs-lisp :tangle yes
+(setq calendar-week-start-day 1)
+#+end_src
+
+Использовать европейский стиль отображения.
+
+#+begin_src emacs-lisp :tangle yes
+(setq european-calendar-style 't)
+#+end_src
+
+** Кодировки
+
+Практика показала, что на windows корректно отображаются данные в буфере и shell при такой настройке. 
+
+Использовать кодировки windows-1251
+
+#+begin_src emacs-lisp :tangle yes
+(prefer-coding-system 'windows-1251)
+#+end_src
+
+Использвоать по умолчанию кодировку utf-8
+
+#+begin_src emacs-lisp :tangle yes
+(prefer-coding-system 'utf-8) 
+#+end_src
+
+Это русский компьютер.
+
+#+begin_src emacs-lisp :tangle yes
+(setq default-input-method 'russian-computer)
+#+end_src
+
+** Номера строк
+
+Номера строк нужны для режимов программирования.
+
+Определение формата отображения номеров строк.
+
+#+begin_src emacs-lisp :tangle yes
+(setq linum-format " %d ")
+#+end_src
+
+Подключить номера строк только в оперделенные режимы.
+
+#+begin_src emacs-lisp :tangle yes
+(add-hook 'emacs-lisp-mode-hook 'linum-mode)
+(add-hook 'python-mode-hook 'linum-mode)
+#+end_src
+
+Для отображения номеров строк во всех режимах можно использовать глобальную переменную, но мне так не надо.
+
+#+begin_src emacs-lisp :tangle no
+(global-linum-mode 1)
+#+end_src
+
+* Функции
+	
+Дополнительные функции вызываемые по заранее определенным клавиатерным сочетаниям.
+
+** Показывать буффер сообщений
+
+Отображает буфер сообщений. Удобно если нужно бустро посмотреть систмные ссобщения.
+
+#+begin_src emacs-lisp :tangle yes
+(defun show-message-log ()
+	(interactive)
+	(switch-to-buffer "*Messages*"))
+#+end_src
+
+** Закрепить экран
+
+Функция для закрепления текущего буфера. Практика показала, что мне пока не нужна и практически не использовалась.
+
+#+begin_src emacs-lisp :tangle no
+(defun toggle-current-window-dedication ()
+  (interactive)
+  (let* ((window
+	  (selected-window))
+	 (dedicated (window-dedicated-p window)))
+    (set-window-dedicated-p window (not dedicated))
+    (message "Window %sdedicated to %s"
+	     (if dedicated "no longer " "")
+	     (buffer-name))))
+#+end_src
+
+** Поля
+
+Заключить буфер в поля. Выводит содержимое буфера по центру. Очень удобна совместно с fb2.
+
+Это toggle-функция позволяющая использовать одно сочетание клавишь для создания полей и возвращения буфера в первоначальное состояние.
+
+#+begin_src emacs-lisp :tangle yes
+(defun fringe-toggle ()
+  (interactive)
+  ;; use a property “state”. Value is t or nil
+  (if (get 'fringe-toggle 'state)
+      (progn
+		(fringe-mode nil)
+		(put 'fringe-toggle 'state nil))
+    (progn 
+		(fringe-mode (cons (/ (window-pixel-width) 5)
+						   (/ (window-pixel-width) 5)	  
+						   ))
+		(put 'fringe-toggle 'state t))))
+#+end_src
+
+
+
+В начале функция выглядела по-другому и состояла из двух частей. Первая часть создавала поля:
+
+#+begin_src emacs-lisp :tangle no
+(defun fringe-on ()
+	(interactive)
+	(fringe-mode '(350 . 350)))
+#+end_src
+
+А вторя часть возвращает поля обратно:
+
+#+begin_src emacs-lisp :tangle no
+(defun fringe-off ()
+	(interactive)
+	(fringe-mode nil))
+#+end_src
+
+Данный подход оказался не прагматичным, так как использовалось две комбинации клавиш на создание полей и отключение. Также размеры полей были указаны напрямую, что не очень хорошо, так как не дает универсальнсти перноса конфигурации. Точные значения были замененв на функции вычисления полей по ширине экрана:
+
+#+begin_src emacs-lisp :tangle no
+(window-pixel-width)
+#+end_src
+
+Поля вычиляются по простой формуле: ширина эрана делится на 5 частей из которых одна часть уходит на поле. Так как создаются два поля с левой и правой сторон, то на поля уходит 2/5 ширины экранного размера.
+
+#+begin_src emacs-lisp :tangle no
+(/ (window-pixel-width) 5)
+#+end_src
+
+** Текущая дата
+
+Функция вставки текущей даты в формате: день месяц прописью год.
+
+#+begin_src emacs-lisp :tangle yes
+(defun insert-current-date ()
+	(interactive)
+	(insert (format-time-string "%Y-%m-%d")))
+#+end_src
+
+** Коментирование
+
+Очень полезная функция позволяющая вставлять в режимах языков программирования символы комментария.
+
+#+begin_src emacs-lisp :tangle yes
+(defun comment-or-uncomment-this (&optional lines)
+  (interactive "P")
+  (if mark-active
+      (if (< (mark) (point))
+          (comment-or-uncomment-region (mark) (point))
+          (comment-or-uncomment-region (point) (mark)))
+      (comment-or-uncomment-region
+       (line-beginning-position)
+       (line-end-position lines))))
+#+end_src
+
+* Раширения и дополнения
+** Сохранять сессию открытых файлов
+
+Автоматическое сохрание открытх файлов в редакторе. Позволяет сохранять буферы и работаь с ними после закрытия редактора не подключая снова. Особено плезно при работе со множдеством файлом. Иногда мешает, поскольку хранит не только сам файл, но и все стили его отображения.
+
+#+begin_src emacs-lisp :tangle yes
+(setq desktop-dirname "~/.emacs.d/desktop/")
+(setq desktop-base-file-name  ".emacs.desktop")
+(setq desktop-base-lock-name "lock")
+(setq desktop-path  (list desktop-dirname))
+(setq desktop-save t)
+(setq desktop-files-not-to-save "^$") ;reload tramp paths
+(setq desktop-load-locked-desktop nil)
+(setq desktop-auto-save-timeout 30)
+(desktop-save-mode 1)
+#+end_src
+
+** Поиск по файлам
+	
+По большому счету не особо нужная возможность. В windows есть far-manager, который умеет искать файлы по содержимому.  
+
+#+begin_src emacs-lisp :tangle no
+(setq find-program ".emacs.d\\bin\\find.exe")
+(setq grep-program ".emacs.d\\bin\\grep.exe")
+#+end_src
+
+** Автосохранение и бекапы
+
+Данная возможность может быть полезна только для ежедневных заметок или быстрых записей. В режимах программировния или org-mode данная функция только мешает, так как сохраняет любые изменения сразу, но бывают случаи когда изменения сохранять не надо, а нужно создать еще один файл сохранив оригинальный.
+
+Подключение модуля
+
+#+begin_src emacs-lisp :tangle yes
+(require 'real-auto-save)
+#+end_src
+
+Автосохранение в каждомм отдельном режиме
+
+#+begin_src emacs-lisp :tangle no
+(add-hook 'python-mode-hook 'real-auto-save-mode)
+(add-hook 'my-note-mode-hook 'real-auto-save-mode)
+#+end_src
+
+Период автосохранения - каждую секунду
+
+#+begin_src emacs-lisp :tangle yes
+(setq real-auto-save-interval 1)
+#+end_src
+
+Не создавать бекапы
+
+#+begin_src emacs-lisp :tangle yes
+(setq make-backup-files         nil)
+#+end_src
+
+Не создавать save файлы
+
+#+begin_src emacs-lisp :tangle yes
+(setq auto-save-list-file-name  nil) 
+#+end_src
+
+Отключить автосохранение.
+
+#+begin_src emacs-lisp :tangle yes
+(setq auto-save-default         nil)
+#+end_src
+
+** ЖЖ
+
+Теперь, чтобы создавать посты в ЖЖ, используйте M-x lj-compose и M-x lj-compose-submit. Также могут призодиться команды lj-login и lj-password. Чтобы посмотреть (а потом можно и отредактировать) свои последние записи используйте M-x lj-browse-entries. Удобно!
+
+#+begin_src emacs-lisp :tangle yes
+(require 'ljupdate)
+#+end_src
+	
+** Почта
+
+Подключение модуля.
+
+#+begin_src emacs-lisp :tangle yes
+(autoload 'wl "wl" "Wanderlust" t)
+#+end_src
+
+Настройка IMAP
+
+#+begin_src emacs-lisp :tangle yes
+(setq elmo-imap4-default-server "imap.gmail.com")
+(setq elmo-imap4-default-user "knigolaz@gmail.com")
+(setq elmo-imap4-default-authenticate-type 'clear)
+(setq elmo-imap4-default-port '993)
+(setq elmo-imap4-default-stream-type 'ssl)
+(setq elmo-imap4-use-modified-utf7 t)
+#+end_src
+
+Настройка SMTP
+
+#+begin_src emacs-lisp :tangle yes
+(setq wl-smtp-connection-type 'starttls)
+(setq wl-smtp-posting-port 587)
+(setq wl-smtp-authenticate-type "plain")
+(setq wl-smtp-posting-user "knigolaz")
+(setq wl-smtp-posting-server "smtp.gmail.com")
+(setq wl-local-domain "gmail.com")
+(setq wl-message-id-domain "smtp.gmail.com")
+#+end_src
+
+Мои учетные данные
+
+#+begin_src emacs-lisp :tangle yes
+(setq wl-from "Vitaliy Koshelev <knigolaz@gmail.com>")
+#+end_src
+
+папка с почтой на сервере.
+#+begin_src emacs-lisp :tangle yes
+(setq wl-default-folder "%inbox")
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(setq wl-fcc-force-as-read t)
+(setq wl-default-spec "%")
+#+end_src
+
+** Проверка орфографии
+
+Для проверки орфографии используется hunspell. Ипольняемые файлы которого хранятся в отдельной папке, к которой указывается путь.
+
+#+begin_src emacs-lisp :tangle yes
+(setq ispell-program-name (locate-file "hunspell"
+                       exec-path exec-suffixes 'file-executable-p))
+
+(setenv "LANG" "en_US, ru_RU")
+(with-eval-after-load 'ispell
+  (setq ispell-program-name "hunspell"
+        ispell-dictionary "ru_RU,en_GB")
+  (ispell-set-spellchecker-params)
+  (ispell-hunspell-add-multi-dic "en_GB,ru_RU")
+  (ispell-hunspell-add-multi-dic "ru_RU,en_GB"))
+#+end_src
+
+** FB2
+
+Возможность просмотра и чтения книг fb2 в редакторе Emacs.
+
+#+begin_src emacs-lisp :tangle yes
+(require 'fb2-mode)
+#+end_src
+
+* Система разработки
+** Поддержка языков программирования
+*** Python
+
+Блок команд для подключения *Python*
+
+#+begin_src emacs-lisp :tangle yes
+(setq python-shell-interpreter "C:/Program Files (x86)/Python/python.exe")
+(defun eval-python-buffer ()
+  "Execute current buffer as Python code."
+  (interactive)
+  (shell-command-on-region 1 (point-max) "C:/Program Files (x86)/Python/python.exe"))
+#+end_src
+
+*** TeX
+
+Блок настройки TeX. Подключен модуль auctex.
+
+#+begin_src emacs-lisp :tangle yes
+(load "auctex.el" nil t t)
+(load "preview.el" nil t t)
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq-default TeX-master nil)
+(setq TeX-PDF-mode t)
+#+end_src
+
+** Markdown
+
+Подключение модуля
+
+#+begin_src emacs-lisp :tangle yes
+(require 'markdown-mode)
+#+end_src
+
+** Дополнения
+*** IDE
+
+Это по рекомендации в одном из обучающих роликов на youtube. Зачем оно и как работает нужно выяснять отдельно.
+
+#+begin_src emacs-lisp :tangle yes
+(require 'projectile)
+#+end_src
+
+*** Операторные скобки
+
+Полезная возможность позволяющая сворачивать текст в операторных скобках для программерских режимов.
+
+Подключение модуля
+
+#+begin_src emacs-lisp :tangle yes
+(require 'hideshow)
+#+end_src
+
+Определение символов выполняющих роли оперторных скобок.
+
+#+begin_src emacs-lisp :tangle yes
+(defvar hs-special-modes-alist
+   (mapcar 'purecopy
+      '((c-mode "{" "}" "/[*/]" nil nil)
+       (c++-mode "{" "}" "/[*/]" nil nil)
+       (bibtex-mode ("@\\S(*\\(\\s(\\)" 1))
+       (java-mode "{" "}" "/[*/]" nil nil)
+       (js-mode "{" "}" "/[*/]" nil)
+       (emacs-lisp- "(" ")" nil))))
+#+end_src
+
+Подключение через хуки.  
+
+#+begin_src emacs-lisp :tangle yes
+(add-hook 'emacs-lisp-mode-hook #'hs-minor-mode)
+(add-hook 'c++-mode-hook        #'hs-minor-mode)
+(add-hook 'c-mode-hook          #'hs-minor-mode)
+(add-hook 'nxml-mode-hook       #'hs-minor-mode)
+#+end_src
+
+Toggle-функция позволяющая сворачивать и разворачивать операторные скобки одной комбинацией клавиш.
+
+#+begin_src emacs-lisp :tangle yes
+(defun hs-hide-toggle ()
+  (interactive)
+  (if (get 'hs-hide-toggle 'state)
+      (progn
+		(hs-show-all)
+		(put 'hs-hide-toggle 'state nil))
+    (progn 
+	  (hs-hide-all)		
+	  (put 'hs-hide-toggle 'state t))))
+#+end_src
+
+*** Code browser
+
+Очень мощное дополнение для разработчика. Создает дополнительные фреймы со списками фалов, переменных и модулей.
+
+#+begin_src emacs-lisp :tangle yes
+(load-file "~/.emacs.d/ecb/ecb.el");
+(require 'ecb)
+#+end_src
+
+*** Yasnippet
+
+Сниппеты позволяют заменять некоторое ключевое слово заранее составленным выражением, что сильно экономит время. В основном нужны для режимов программирования, но может быть полезна для часто повторяющихся фраз или выражений в других режимах. 
+
+#+begin_src emacs-lisp :tangle yes
+(require 'yasnippet)
+(setq yas-snippet-dirs '("~/.emacs.d/snippets" ))
+(yas-global-mode 1)
+#+end_src
+
+*** Автопоиск
+
+
+#+begin_src emacs-lisp :tangle yes
+(require 'ido)
+(ido-mode t)
+(setq ido-enable-flex-matching t)
+(icomplete-mode                t)
+(ido-everywhere                t)
+(setq ido-vitrual-buffers      t)
+(setq ido-enable-flex-matching t)
+#+end_src
+
+*** Autocomplete
+
+Еще одно расширение для режимов программирования. Позволяет искать и находить в словарях ключевые слова. Нужна для ускорения процесса в основном.
+
+#+begin_src emacs-lisp :tangle yes
+(require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
+(ac-config-default)
+#+end_src
+
+* Клавиатура
+** Сочетания клавиш
+
+Клавиатурные сочетания переопределены с учетом стандартных сочетаний тектовых редакторов Windows.
+
+#+CAPTION: Работа с файлами
+|----------------+-------+----------------------------+----------|
+| Клавиша        | Режим | Функция                    | Значение |
+|----------------+-------+----------------------------+----------|
+| Ctrl + s       | all   | save-buffer                | Save     |
+| Ctrl + Alt+ s  | all   | write-file                 | Save As  |
+| Alt + q        | all   | kill-this-buffer           | Close    |
+| Ctrl + Alt + q | all   | save-buffers-kill-terminal | Quit     |
+| Ctrl + o       | all   | find-file                  | Open     |
+| Ctrl + n       | all   | switch-to-buffer           | New      |
+| Ctrl + r       | all   | rename-file                | Rename   |
+|----------------+-------+----------------------------+----------|
+
+
+#+CAPTION: Планирование и ORG MODE
+|-----------+-------+------------+----------------|
+| Клавиша   | Режим | Функция    | Значение       |
+|-----------+-------+------------+----------------|
+| F5        | all   | org-agenda | Show TODO List |
+| Ctrl + F5 | all   |            |                |
+| Alt + F5  | all   |            |                |
+|-----------+-------+------------+----------------|
+
+
+#+CAPTION: Закладки
+|-----------+-------+---------------------+---------------|
+| Клавиша   | Режим | Функция             | Значение      |
+|-----------+-------+---------------------+---------------|
+| F9        | all   | bookmark-bmenu-list | Open Bookmark |
+| Alt + F9  | all   | bookmark-delete     | Delete        |
+| Ctrl + F9 | all   | bookmark-set        | Add           |
+|-----------+-------+---------------------+---------------|
+
+
+#+CAPTION: Справка и помощь
+|---------+-------+-------------------+----------|
+| Клавиша | Режим | Функция           | Значение |
+|---------+-------+-------------------+----------|
+| F1 + k  | all   | describe-key      |          |
+| F1 + v  | all   | describe-variable |          |
+| F1 + f  | all   | describe-function |          |
+|---------+-------+-------------------+----------|
+
+
+#+CAPTION: SpeedBar
+|-----------+-------+--------------------+---------------|
+| Клавиша   | Режим | Функция            | Значение      |
+|-----------+-------+--------------------+---------------|
+| F8        | all   | sr-speedbar-toggle | Show SpeedBar |
+| Ctrl + F8 | all   |                    |               |
+| Alt + F8  | all   |                    |               |
+|-----------+-------+--------------------+---------------|
+
+	
+#+CAPTION: Работа с редактором текста
+|----------------+-------+----------------------------------+----------------|
+| Клавиша        | Режим | Функция                          | Значение       |
+|----------------+-------+----------------------------------+----------------|
+| Ctrl + c       | all   | kill-ring-save                   | Copy           |
+| Ctrl + v       | all   | yank                             | Paste          |
+| Ctrl + x       | all   | kill-region                      | Cut            |
+| Ctrl + a       | all   | mark-whole-buffer                | Select all     |
+| Ctrl + z       | all   | undo                             | Undo           |
+| Ctrl + d       | all   | insert-current-date              | Date           |
+| Ctrl + b       | all   | beginning-of-visual-line         | Begin line     |
+| Alt + f        | all   | forward-word                     | End word       |
+| Alt + b        | all   | backward-word                    | Begin word     |
+| Ctrl + e       | all   | end-of-visual-line               | End line       |
+| Alt + e        | all   | forward-sentence                 |                |
+| Ctrl + f       | all   | isearch-forward                  | Find           |
+| Ctrl + Alt + f | all   | replace-string                   | Replace        |
+| Ctrl + Space   | all   | set-mark-command                 | Select         |
+| Alt + Space    | all   | rectangle-mark-mode              | Select column  |
+| Ctrl + k       | all   | query-replace                    | Convert Coding |
+| Alt + k        | all   | revert-buffer-with-coding-system | Change Coding  |
+| Ctrl + w       | all   | fringe-toggle                    | Margins        |
+| TAB            | all   | my-insert-tab-char               | Tab            |
+|----------------+-------+----------------------------------+----------------|
+
+
+#+CAPTION: Системные функции
+|-----------+-------+--------------------------+-----------------------|
+| Клавиша   | Режим | Функция                  | Значение              |
+|-----------+-------+--------------------------+-----------------------|
+| Alt + x   | all   | execute-extended-command | Command input         |
+| F10       | all   | menu-bar-open            | Menu                  |
+| F11       | all   | toggle-frame-fullscreen  | Full Scriin           |
+| F12       | all   | delete-other-windows     | One Screen            |
+| Alt + F12 | all   | screen-toggle            | Split Screen          |
+|-----------+-------+--------------------------+-----------------------|
+
+
+#+CAPTION: Работа с буферами
+|-----------+-------+---------+-----------------------|
+| Клавиша   | Режим | Функция | Значение              |
+|-----------+-------+---------+-----------------------|
+| F2        | all   | bs-show | Show Buffer Selection |
+| Alt + F2  | all   | ibuffer | Show iBuffer          |
+| Ctrl + F2 | all   |         |                       |
+|-----------+-------+---------+-----------------------|
+
+
+#+CAPTION: Макросы
+|---------+-------+--------------------------------------+----------------|
+| Клавиша | Режим | Функция                              | Значение       |
+|---------+-------+--------------------------------------+----------------|
+| F3      | all   | kmacro-start-macro-or-insert-counter | Запись макроса |
+| F4      | all   | kmacro-end-or-call-macro             | Запуск макроса |
+|---------+-------+--------------------------------------+----------------|
+
+
+#+CAPTION: Проверка орфографии
+|---------+-------+------------------------------------+--------------|
+| Клавиша | Режим | Функция                            | Значение     |
+|---------+-------+------------------------------------+--------------|
+| F6      |       | flyspell-buffer                    | Check Spell  |
+| Ctrl-F6 |       | flyspell-correct-word-before-point | Replace word |
+| Alt-F6  |       |                                    |              |
+|---------+-------+------------------------------------+--------------|
+
+
+#+CAPTION: Навигация по окнам и буферам
+|---------------+-------+----------------+-------------|
+| Клавиша       | Режим | Функция        | Значение    |
+|---------------+-------+----------------+-------------|
+| Shift + left  | all   | windmove-left  | Окно слева  |
+| Shift + right | all   | windmove-right | Окно справа |
+| Shift + up    | all   | windmove-up    | Окно вверху |
+| Shift + down  | all   | windmove-down  | Окно внизу  |
+
+|---------------+-------+----------------+-------------|
+
+
+#+CAPTION: Увеличить/Уменьшить текст
+|----------+-------+---------------------+----------|
+| Клавиша  | Режим | Функция             | Значение |
+|----------+-------+---------------------+----------|
+| Ctrl + + | all   | text-scale-increase |  Big     |
+| Ctrl + - | all   | text-scale-adjust   |  Small   |
+| Ctrl + 0 | all   | text-scale-increase |  Norm    |
+|----------+-------+---------------------+----------|
+
+
+#+CAPTION: Ссылки
+|--------------+-------+-----------------------+-----------|
+| Клавиша      | Режим | Функция               | Значение  |
+|--------------+-------+-----------------------+-----------|
+| Ctrl + Enter | org   | org-open-at-point     | Open link |
+| Alt  + Enter | all   | goto-address-at-point | Open link |
+|--------------+-------+-----------------------+-----------|
+
+
+#+CAPTION: Программирование
+|-----------+------------+---------------------------+---------------------|
+| Клавиша   | Режим      | Функция                   | Значение            |
+|-----------+------------+---------------------------+---------------------|
+| F7        | org        | org-export-dispatch       | Run                 |
+| Alt + F7  | org        | org-babel-tangle          | Give Code           |
+| F7        | python     | eval-python-buffer        | Run                 |
+| F7        | emacs-lisp | eval-last-sexp            | Run                 |
+| F7        | TeX        | TeX-command-run-all       | Run                 |
+| Ctrl + F7 | TeX        | TeX-next-error            | Error               |
+| Ctrl + )  | all        | hs-toggle-hiding          | Свернуть/Развернуть |
+| Ctrl + ;  | all        | comment-or-uncomment-this | Comment             |
+|-----------+------------+---------------------------+---------------------|
+
+
+Отключение стандарных комбинаций, чтобы не мешались.
+
+#+begin_src emacs-lisp :tangle yes
+(define-key ctl-x-map "\C-c" nil)
+#+end_src
+
+
+Создание своего собственного minor-mode и навешивание горячих клавиш уже в нем.
+
+#+begin_src emacs-lisp :tangle yes
+(defvar cfg-mode-map (make-sparse-keymap))
+(define-minor-mode cfg-mode
+  "cfg-mode"
+  :lighter " cfg"
+  cfg-mode-map)
+
+(defadvice load (after cfg-keybindings-priority)
+  (if (not (eq (car (car minor-mode-map-alist)) 'cfg-mode))
+      (let ((mykeys (assq 'cfg-mode minor-mode-map-alist)))
+        (assq-delete-all 'cfg-mode minor-mode-map-alist)
+        (add-to-list 'minor-mode-map-alist mykeys))))
+(ad-activate 'load)
+
+(defun turn-on-cfg-mode ()
+  (interactive)
+  (cfg-mode t))
+
+(defun turn-off-cfg-mode ()
+  (interactive)
+  (cfg-mode -1))
+
+(define-globalized-minor-mode global-cfg-mode cfg-mode turn-on-cfg-mode)
+#+end_src
+
+В данный список заносятся используемые комбинации клавиш.
+
+#+begin_src emacs-lisp :tangle yes
+(defun lcl:get-hotkeys ()
+(list
+ (list "C-s" 'save-buffer)
+ (list "C-M-s" 'write-file)   
+ (list "M-q" 'kill-this-buffer)  
+ (list "C-M-q" 'save-buffers-kill-terminal)  
+ (list "C-o" 'find-file)   
+ (list "C-n" 'switch-to-buffer)  
+ (list "C-r" 'rename-file)   
+ (list "<f5>"  'org-agenda)   
+;; (list "C-<f5>" '  )  
+;; (list "M-<f5>" '  )  
+ (list "<f9>"  'bookmark-bmenu-list)  
+ (list "M-<f9>" 'bookmark-delete)  
+ (list "C-<f9>" 'bookmark-set)   
+ (list "<f1>-k" 'describe-key)   
+ (list "<f1>-v" 'describe-variable)  
+ (list "<f1>-f" 'describe-function)   
+ (list "<f8>" 
+		(lambda ()
+		    (interactive)
+		    (sr-speedbar-toggle)
+		    (speedbar-toggle-show-all-files)))
+;; (list "C-<f8>" '  )  
+;; (list "M-<f8>" '  )
+ (list "C-c" 'kill-ring-save)   
+ (list "C-v" 'yank)
+ (list "C-x" 'kill-region)   
+ (list "C-a" 'mark-whole-buffer)  
+ (list "C-z" 'undo)   
+ (list "C-d" 'insert-current-date)  
+ (list "C-b" 'beginning-of-visual-line) 
+;; (list "M-b" '  )   
+ (list "C-e" 'end-of-visual-line)  
+;; (list "M-e" '  )   
+ (list "C-f" 'isearch-forward)  
+ (list "C-M-f" 'replace-string)  
+ (list "C-<SPC>" 'set-mark-command)  
+ (list "M-<SPC>" 'rectangle-mark-mode)  
+ (list "C-k" 'query-replace)   
+ (list "M-k" 'revert-buffer-with-coding-system) 
+ (list "C-w" 'fringe-toggle)   
+ (list "TAB" 'my-insert-tab-char)  
+ (list "M-x" 'execute-extended-command) 
+ (list "<f10>" 'menu-bar-open)   
+ (list "<f11>" 'toggle-frame-fullscreen)  
+ (list "<f2>"  'bs-show)   
+ (list "M-<f2>" 'ibuffer)   
+;; (list "C-<f2>" ' )   
+ (list "<f3>"  'kmacro-start-macro-or-insert-counter)
+ (list "<f4>"  'kmacro-end-or-call-macro) 
+ (list "<f6>"  'flyspell-buffer)  
+ (list "C-<f6>" 'flyspell-correct-word-before-point) 
+;; (list "M-<f6>" ')   
+ (list "C-<RET>" 'org-open-at-point)  
+ (list "M-<RET>" 'goto-address-at-point)  
+ (list "C-)" 'hs-toggle-hiding)
+ (list "C-;" 'comment-or-uncomment-this) 
+ (list "<f12>" 'delete-other-windows)
+ (list "M-<f12>" 'screen-toggle)
+ (list "C-+" 'text-scale-increase)
+ (list "C--" 'text-scale-adjust)
+ (list "C-0" 'text-scale-mode)
+))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(defun cfg:cfg-hotheys (map)
+  (dolist (k (lcl:get-hotkeys))
+    (when k
+      (let ((key (kbd (car k)))
+            (func (car (cdr k))))
+        (define-key map key func)
+        (global-set-key key func)))))
+
+(defun cfg:cfg ()
+  (add-hook 'minibuffer-setup-hook 'turn-off-cfg-mode)
+  (cfg:cfg-hotheys cfg-mode-map)
+  (global-cfg-mode))
+
+(cfg:cfg)
+#+end_src
+
+Одна клавиша на тематически похожие задачи в разных режимах
+
+#+begin_src emacs-lisp :tangle yes
+(eval-after-load "latex"
+	'(progn
+		 (define-key LaTeX-mode-map (kbd "<f7>") 'TeX-command-run-all)			
+		 (define-key LaTeX-mode-map (kbd "С-<f7>") 'TeX-next-error)))
+
+(eval-after-load 'python
+	'(define-key python-mode-map (kbd "<f7>") 'eval-python-buffer))
+
+(eval-after-load 'emacs
+	'(define-key emacs-lisp-mode-map (kbd "<f7>") 'eval-last-sexp))
+#+end_src
+
+Для ORG MODE пришлось отключать встроенные комбинации клавиш, чтобы заработали глобальные
+
+#+begin_src emacs-lisp :tangle yes
+(eval-after-load "org"
+  '(progn
+		(define-key org-mode-map (kbd "<f7>") 'org-export-dispatch)
+		(define-key org-mode-map (kbd "M-<f7>") 'org-babel-tangle)
+		(define-key org-mode-map (kbd "<C-right>") 'org-shiftright)
+		(define-key org-mode-map (kbd "<C-left>") 'org-shiftleft)
+		(define-key org-mode-map (kbd "<S-down>") nil)
+		(define-key org-mode-map (kbd "<S-left>") nil)
+		(define-key org-mode-map (kbd "<S-right>") nil)
+		(define-key org-mode-map (kbd "<S-up>") nil)))
+#+end_src
+
+Функция toggle для переключения разделителя экранов с вертикального на горизонтальный и обратно.
+
+#+begin_src emacs-lisp :tangle yes
+(defun screen-toggle ()
+  (interactive)
+  (if (get 'screen-toggle 'state)
+      (progn
+		(delete-other-windows)
+		(split-window-below)
+		(put 'screen-toggle 'state nil))
+    (progn 
+		(delete-other-windows)
+		(split-window-right)		
+	  (put 'screen-toggle 'state t))))
+#+end_src
+
+Чтобы функция kill-ring-save назначенная на "C-х" вырезала только выделенные участки текста, нужно прописать следующую настройку.
+
+#+begin_src emacs-lisp :tangle yes
+(setq mark-even-if-inactive nil)
+#+end_src
+
+
+Тоже самое можно сделать через пакет USER PACKAGE, но это не намного проще и приходися подключать дополнительный модуль.
+
+#+begin_src emacs-lisp :tangle no
+(use-package python
+  :config
+  (define-key python-mode-map (kbd "<f7>") 'eval-python-buffer))
+
+(use-package latex
+  :config
+  (define-key LaTeX-mode-map (kbd "<f7>") 'TeX-command-run-all))
+
+(use-package org
+  :config
+  (define-key org-mode-map (kbd "<f7>") 'org-export-dispatch))
+#+end_src
+
+** TAB
+
+Использовать клавишу TAB
+
+#+begin_src emacs-lisp :tangle yes
+(defun my-insert-tab-char()
+  "Insert a tab char. (ASCII 9, "\t")"
+	(interactive)
+	(insert "\t"))
+#+end_src
+
+** Работа клавиш управления в русской раскладке
+
+Позволяет использовать кобинации клавиш управления в русской расскладке.
+
+#+begin_src emacs-lisp :tangle yes
+(defun cfg:reverse-input-method (input-method)
+  "Build the reverse mapping of single letters from INPUT-METHOD."
+  (interactive
+   (list (read-input-method-name "Use input method (default current): ")))
+  (if (and input-method (symbolp input-method))
+      (setq input-method (symbol-name input-method)))
+  (let ((current current-input-method)
+        (modifiers '(nil (control) (meta) (control meta))))
+    (when input-method
+      (activate-input-method input-method))
+    (when (and current-input-method quail-keyboard-layout)
+      (dolist (map (cdr (quail-map)))
+        (let* ((to (car map))
+               (from (quail-get-translation
+                      (cadr map) (char-to-string to) 1)))
+          (when (and (characterp from) (characterp to))
+            (dolist (mod modifiers)
+              (define-key local-function-key-map
+                (vector (append mod (list from)))
+                (vector (append mod (list to)))))))))
+    (when input-method
+      (activate-input-method current))))
+
+(cfg:reverse-input-method 'russian-computer)
+#+end_src
+
+** Переход между экранами по shift со стрелками
+
+#+begin_src emacs-lisp :tangle yes
+(windmove-default-keybindings)
+#+end_src
+
+* Org Mode
+** Дополнительные модули
+
+Модуль для генерации html-файлов
+
+#+begin_src emacs-lisp :tangle yes
+(require 'htmlize)
+#+end_src
+
+
+Модуль заменяющий звездочки загловка точками. Выполняет исключительно декаративную цель.
+
+#+begin_src emacs-lisp :tangle yes
+(require 'org-bullets)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+#+end_src
+
+** Настройка
+
+#+begin_src emacs-lisp :tangle yes
+(setq org-todo-keywords '((sequence "TODO" "WAIT" "|" "DONE" "DELETE")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(setq org-agenda-files (list
+						"w://plan/personal.org"
+						"w://plan/work.org"
+						"w://plan/books.org"
+						"w://plan/cinema.org"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(setq org-log-done nil) ;; не выводить дату закрытия задачи
+(setq org-latex-default-figure-position "H")
+(setq org-export-headline-levels 4)
+;;(setq org-export-with-sub-superscripts nil)
+(setq org-export-with-sub-superscripts '{})
+;;(setq org-export-with-date  nil) ;; отключить
+(setq user-full-name "Кошелев Виталий")
+(setq org-startup-folded nil)
+(setq user-mail-address "knigolaz@gmail.com")
+;;(setq org-export-with-email "knigolaz@gmail.com")
+;;(setq org-export-with-toc nil)
+(setq org-export-default-language "ru")
+(add-hook 'org-mode-hook 'org-indent-mode)
+#+end_src
+
+*** Настройка заголовков экспорта в LaTeX
+
+Заголовочные коментарии лучше использовать только в тех случаях, когда требуется особый вид экпорта.
+
+#+begin_src emacs-lisp :tangle yes
+(setq org-latex-classes
+   (quote
+	(("article" "\\documentclass[a4paper,11pt]{article}
+       \\usepackage[T1,T2A]{fontenc}                   
+	   \\usepackage{float}
+	   \\usepackage[english,russian]{babel}"
+	  ("\\section{%s}" . "\\section*{%s}")
+	  ("\\subsection{%s}" . "\\subsection*{%s}")
+	  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+	  ("\\paragraph{%s}" . "\\paragraph*{%s}")
+	  ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+	 ("report" "\\documentclass[11pt]{report}"
+	  ("\\part{%s}" . "\\part*{%s}")
+	  ("\\chapter{%s}" . "\\chapter*{%s}")
+	  ("\\section{%s}" . "\\section*{%s}")
+	  ("\\subsection{%s}" . "\\subsection*{%s}")
+	  ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+	 ("book" "\\documentclass[11pt]{book}"
+	  ("\\part{%s}" . "\\part*{%s}")
+	  ("\\chapter{%s}" . "\\chapter*{%s}")
+	  ("\\section{%s}" . "\\section*{%s}")
+	  ("\\subsection{%s}" . "\\subsection*{%s}")
+	  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))))
+#+end_src
+
+Можно использовать заголовочные коментарии в самом org-файле, но это загромождает его.
+
+#+begin_src text :tangle no
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [a4paper]
+#+LATEX_HEADER: \usepackage[T1,T2A]{fontenc}
+#+LATEX_HEADER: \usepackage{float}
+#+LATEX_HEADER: \usepackage[english,russian]{babel}
+#+end_src 
+
+*** Настройка заголовком экспорта в HTML
+
+Добавить файл стилей CSS
+
+#+begin_src emacs-lisp :tangle yes
+(setq org-html-head
+   "<link rel=\"stylesheet\" type=\"text/css\" href=\"style1.css\" />")
+#+end_src
